@@ -2,35 +2,43 @@ import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import NavBar from './component/NavBar';
+import { MyContext } from './MyContext';
 import FavoritePage from './pages/FavoritePage';
 import HomePage from './pages/HomePage';
 import NotFound from './pages/NotFound';
 
 
-const urlJson  = "./json/data.json";
-
+const urlApi = 'https://rickandmortyapi.com/api/character'
 
 function App() {
 
-    const [fotos, setFotos] = useState([]);
-  
+  const [dataRickAndMorty, setDataRickAndMorty] = useState([])
+
     useEffect(()=>{
-      getPhotos()
+        getRickAndMorty()
     }, [])
-  
-    const getPhotos = async()=>{
-    const response = await fetch(urlJson)
-    console.log(response)
-    const data = await response.json()
-    setFotos(data.photos)
+    
+      const getRickAndMorty = async()=>{
+      const response = await fetch(urlApi)
+      //const data = await response.json()
+      let { results }= await response.json()
+         const data = results.map((dat) => ({
+            id: dat.id, 
+            src: dat.image, 
+            name: dat.name,
+            favorito: false
+            
+      }))
+      setDataRickAndMorty(data) 
+
     }
-
-
   return (
     <div>
  
       <NavBar />
-      <div className='container'>
+      <div>
+        
+        <MyContext.Provider value={{dataRickAndMorty, setDataRickAndMorty}}>
           <Routes>
                 <Route path='/' element={<HomePage/>}/>
                 <Route path='home' element={<HomePage/>}/>
@@ -38,6 +46,7 @@ function App() {
                 <Route path='*' element={<NotFound/>}/> 
                 
           </Routes>
+        </MyContext.Provider>
       </div>
    </div>
   );
